@@ -1,15 +1,29 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import './App.scss';
+import { Person } from './types/Person';
 import { peopleFromServer } from './data/people';
 
+import { Autocomplete } from './Autocomplete';
+
 export const App: React.FC = () => {
-  const { name, born, died } = peopleFromServer[0];
+  const [query, setQuery] = useState('');
+  const [selected, setSelected] = useState<Person | null>(null);
+
+  const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(event.target.value);
+  };
+
+  const filteredPeople = useMemo(() => {
+    return people.filter(person =>
+      person.name.toLowerCase().includes(query.toLowerCase()),
+    );
+  }, [query, people]);
 
   return (
     <div className="container">
       <main className="section is-flex is-flex-direction-column">
         <h1 className="title" data-cy="title">
-          {`${name} (${born} - ${died})`}
+          {` selected ? ${selected.name} (${selected.born} - ${selected.died}) : 'No selected person'`}
         </h1>
 
         <div className="dropdown is-active">
@@ -19,42 +33,12 @@ export const App: React.FC = () => {
               placeholder="Enter a part of the name"
               className="input"
               data-cy="search-input"
+              value={query}
+              onChange={handleQueryChange}
             />
           </div>
-
-          <div className="dropdown-menu" role="menu" data-cy="suggestions-list">
-            <div className="dropdown-content">
-              <div className="dropdown-item" data-cy="suggestion-item">
-                <p className="has-text-link">Pieter Haverbeke</p>
-              </div>
-
-              <div className="dropdown-item" data-cy="suggestion-item">
-                <p className="has-text-link">Pieter Bernard Haverbeke</p>
-              </div>
-
-              <div className="dropdown-item" data-cy="suggestion-item">
-                <p className="has-text-link">Pieter Antone Haverbeke</p>
-              </div>
-
-              <div className="dropdown-item" data-cy="suggestion-item">
-                <p className="has-text-danger">Elisabeth Haverbeke</p>
-              </div>
-
-              <div className="dropdown-item" data-cy="suggestion-item">
-                <p className="has-text-link">Pieter de Decker</p>
-              </div>
-
-              <div className="dropdown-item" data-cy="suggestion-item">
-                <p className="has-text-danger">Petronella de Decker</p>
-              </div>
-
-              <div className="dropdown-item" data-cy="suggestion-item">
-                <p className="has-text-danger">Elisabeth Hercke</p>
-              </div>
-            </div>
-          </div>
         </div>
-
+      <Autocomplete people={filteredPeople} onSelect={setSelected} />
         <div
           className="
             notification
