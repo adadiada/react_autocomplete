@@ -16,7 +16,7 @@ export const Autocomplete: React.FC<Props> = ({ people, onSelected }) => {
           key={person.slug}
           className="dropdown-item"
           data-cy="suggestion-item"
-          onClick={() => onSelected(person)}
+          onClick={() => onSelected?.(person)}
         >
           <p className="has-text-link">{person.name}</p>
         </div>

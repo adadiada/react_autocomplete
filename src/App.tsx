@@ -15,15 +15,15 @@ export const App: React.FC = () => {
     setSelected(person);
   };
 
-  const applieQuery = useMemo(() => debounce(setApplyQuery, 300), []);
+  const applyQueryDebounced = useMemo(() => debounce(setApplyQuery, 300), []);
 
-  useEffect(() => () => applieQuery.cancel(), [applieQuery]);
+  useEffect(() => () => applyQueryDebounced.cancel(), [applyQueryDebounced]);
 
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
 
     setSelected(null);
-    applieQuery(event.target.value);
+    applyQueryDebounced(event.target.value);
   };
 
   const filteredPeople = useMemo(() => {
@@ -32,7 +32,7 @@ export const App: React.FC = () => {
     }
 
     return peopleFromServer.filter(person =>
-      person.name.toLowerCase().includes(applyQuery.toLowerCase()),
+      person.name.toLowerCase().includes(applyQuery),
     );
   }, [applyQuery]);
 
