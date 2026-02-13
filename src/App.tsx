@@ -1,42 +1,36 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import './App.scss';
 import { Person } from './types/Person';
 import { peopleFromServer } from './data/people';
 
 import { Autocomplete } from './Autocomplete';
-import { setTimeout } from 'timers/promises';
 import debounce from 'lodash.debounce';
-
-// function debounce(callback: Function, delay: number) {
-//   let timeId = 0;
-
-//   return (...arg) => {
-//     window.clearTimeout(timeId);
-
-//     timeId = window.setTimeout(() => {
-//       callback(...arg);
-//     }, delay);
-//   };
-// }
 
 export const App: React.FC = () => {
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<Person | null>(null);
   const [applyQuery, setApplyQuery] = useState('');
 
-  const handleSelectePerson = (person: Person) => {
+  const handleSelectePerson = (person: Person | null) => {
     setSelected(person);
-    setQuery(person);
   };
 
-  const applieQuery = useCallback(debounce(setApplyQuery, 300), []);
+  const applieQuery = useMemo(() => debounce(setApplyQuery, 300), []);
+
+  useEffect(() => () => applieQuery.cancel(), [applieQuery]);
 
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
+
+    setSelected(null);
     applieQuery(event.target.value);
   };
 
   const filteredPeople = useMemo(() => {
+    if (!applyQuery) {
+      return peopleFromServer;
+    }
+
     return peopleFromServer.filter(person =>
       person.name.toLowerCase().includes(applyQuery.toLowerCase()),
     );
@@ -72,20 +66,25 @@ export const App: React.FC = () => {
             />
           </div>
         </div>
-        <Autocomplete people={filteredPeople} onSelected={handleSelectePerson} />
-        <div
-          className="
-            notification
-            is-danger
-            is-light
-            mt-3
-            is-align-self-flex-start
-          "
-          role="alert"
-          data-cy="no-suggestions-message"
-        >
-          <p className="has-text-danger">No matching suggestions</p>
-        </div>
+        <Autocomplete
+          people={filteredPeople}
+          onSelected={handleSelectePerson}
+        />
+        {query.trim() !== '' && filteredPeople.length === 0 && (
+          <div
+            className="
+      notification
+      is-danger
+      is-light
+      mt-3
+      is-align-self-flex-start
+    "
+            role="alert"
+            data-cy="no-suggestions-message"
+          >
+            <p className="has-text-danger">No matching suggestions</p>
+          </div>
+        )}
       </main>
     </div>
   );

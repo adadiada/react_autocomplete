@@ -1,29 +1,26 @@
-import React, { useState } from 'react';
+import React from 'react';
+
 import { Person } from './types/Person';
+import './Autocomplete.scss';
 
 type Props = {
   people: Person[];
   onSelected?: (p: Person | null) => void;
 };
 
-export const Autocomplete: React.FC<Props> = React.memo(({
-  people,
-  onSelected = () => {},
-}) => {
+export const Autocomplete: React.FC<Props> = ({ people, onSelected }) => {
   return (
     <div className="dropdown-menu" role="menu" data-cy="suggestions-list">
-      {people.map((person) => (
+      {people.map(person => (
         <div
-          key={person.id}
-          onClick={() => onSelected(person)}
+          key={person.slug}
           className="dropdown-item"
           data-cy="suggestion-item"
-          >
-            <p className="has-text-link">{person.name}</p>
-          </div>
+          onClick={() => onSelected(person)}
+        >
+          <p className="has-text-link">{person.name}</p>
+        </div>
       ))}
-
-      </div>
-    );
-  },
-);
+    </div>
+  );
+};
