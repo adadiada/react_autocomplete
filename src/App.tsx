@@ -3,8 +3,8 @@ import './App.scss';
 import { Person } from './types/Person';
 import { peopleFromServer } from './data/people';
 
-import { Autocomplete } from './Autocomplete';
 import debounce from 'lodash.debounce';
+import { Autocomplete } from './Autocomplete';
 
 export const App: React.FC = () => {
   const [query, setQuery] = useState('');
@@ -13,9 +13,13 @@ export const App: React.FC = () => {
 
   const handleSelectePerson = (person: Person | null) => {
     setSelected(person);
+    setQuery(person?.name ?? '');
   };
 
-  const applyQueryDebounced = useMemo(() => debounce(setApplyQuery, 300), []);
+  const applyQueryDebounced = useMemo(
+    () => debounce((v: string) => setApplyQuery(v), 300),
+    [],
+  );
 
   useEffect(() => () => applyQueryDebounced.cancel(), [applyQueryDebounced]);
 
@@ -27,12 +31,14 @@ export const App: React.FC = () => {
   };
 
   const filteredPeople = useMemo(() => {
-    if (!applyQuery) {
+    const q = applyQuery.trim().toLowerCase();
+
+    if (q === '') {
       return peopleFromServer;
     }
 
     return peopleFromServer.filter(person =>
-      person.name.toLowerCase().includes(applyQuery),
+      person.name.toLowerCase().includes(q),
     );
   }, [applyQuery]);
 
@@ -64,12 +70,12 @@ export const App: React.FC = () => {
               value={query}
               onChange={handleQueryChange}
             />
+            <Autocomplete
+              people={filteredPeople}
+              onSelected={handleSelectePerson}
+            />
           </div>
         </div>
-        <Autocomplete
-          people={filteredPeople}
-          onSelected={handleSelectePerson}
-        />
         {query.trim() !== '' && filteredPeople.length === 0 && (
           <div
             className="

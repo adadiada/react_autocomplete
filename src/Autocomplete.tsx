@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { Person } from './types/Person';
-import './Autocomplete.scss';
 
 type Props = {
   people: Person[];
@@ -17,6 +16,7 @@ export const Autocomplete: React.FC<Props> = ({ people, onSelected }) => {
           className="dropdown-item"
           data-cy="suggestion-item"
           onClick={() => onSelected?.(person)}
+          style={{ cursor: 'pointer' }}
         >
           <p className="has-text-link">{person.name}</p>
         </div>
